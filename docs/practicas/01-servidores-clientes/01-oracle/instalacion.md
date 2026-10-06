@@ -227,7 +227,7 @@ sudo su - oracle -c 'env | grep -E "ORACLE|CV_ASSUME"'
 
 ### Descompresión de la imagen de oracle e instalación silenciosa
 
-Descomprimimos el paquete de instalación directamente en la ruta del `$ORACLE_HOME` usando el usuario `oracle`.
+Descomprimimos el paquete de instalación directamente en la ruta del `$ORACLE_HOME` usando el usuario `oracle`.(Este paquete tendriamos que haberlo descargado de antemano, podemos obtenerlo en [la web oficial de oracle](https://www.oracle.com/es/database/technologies/oracle-database-software-downloads.html))
 
 ```
 sudo su - oracle -c 'unzip -q /TU_DIRECTORIO/LINUX.X64_2326100_db_home.zip -d /u01/app/oracle/product/26.0.0/dbhome_1'
@@ -363,7 +363,7 @@ sudo su - oracle -c '$ORACLE_HOME/bin/dbca -silent -createDatabase \
 Creamos el archivo `$ORACLE_HOME/network/admin/tnsnames.ora` definiendo los alias de red locales para facilitar la resolución de nombres de la CDB (`ORCL`) y de la PDB (`PDB1`).
 
 ```
-sudo su - oracle -c 'cat > $ORACLE_HOME/network/admin/tnsnames.ora <<EOF
+sudo su - oracle -c 'cat >> $ORACLE_HOME/network/admin/tnsnames.ora <<EOF
 ORCL =
   (DESCRIPTION =
     (ADDRESS = (PROTOCOL = TCP)(HOST = ora26ai.example.com)(PORT = 1521))
@@ -404,6 +404,8 @@ Accedemos a la instancia mediante `sqlplus` para auditar los parámetros de arra
 
 ```
 sudo su - oracle -c 'sqlplus / as sysdba'
+
+
 -- Comprobar que la instancia ha arrancado utilizando un archivo SPFILE
 SHOW PARAMETER spfile;
 
@@ -417,7 +419,7 @@ ALTER SYSTEM SET service_names='ORCL','PDB1' SCOPE=BOTH;
 
 -- Guardar el estado de la PDB1 para que se abra automáticamente al iniciar la CDB
 ALTER PLUGGABLE DATABASE PDB1 SAVE STATE;
-EOF
+
 
 ```
 
