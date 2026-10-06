@@ -1,0 +1,3 @@
+# Dependencias del blog (NO incluyen las de las aplicaciones de las prácticas)
+mkdocs==1.6.1
+mkdocs-material==9.7.7

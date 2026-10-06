@@ -1,0 +1,22 @@
+# Entornos y compilaciones
+.venv/
+venv/
+site/
+__pycache__/
+*.pyc
+.pytest_cache/
+# Secretos y archivos internos: NUNCA se suben
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.crt
+id_rsa*
+id_ed25519*
+*.bak
+*.orig
+*.swp
+*~
+.DS_Store
+docs/_borradores/
