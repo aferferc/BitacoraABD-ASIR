@@ -6,11 +6,11 @@ Grupo de trabajo de **Base de Datos** · 2.º ASIR · IES Gonzalo Nazareno · Cu
 
 <div class="grid cards" markdown>
 
--   **Rube**
+-   **Ruben**
 
     Integrante del grupo.
 
-    Asignación en la práctica: *Pendiente de asignar*
+    Asignación en la práctica: *Secretario*
 
 -   **Alfredo**
 
