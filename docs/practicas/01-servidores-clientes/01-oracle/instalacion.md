@@ -52,7 +52,12 @@ sudo ldconfig -p | grep -E 'libaio|libnsl'
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo ldconfig -p | grep -E 'libaio|libnsl'
+	libnsl.so.2 (libc6,x86-64) => /lib/x86_64-linux-gnu/libnsl.so.2
+	libnsl.so.1 (libc6,x86-64) => /lib/x86_64-linux-gnu/libnsl.so.1
+	libaio.so.1t64 (libc6,x86-64) => /lib/x86_64-linux-gnu/libaio.so.1t64
+	libaio.so (libc6,x86-64) => /lib/x86_64-linux-gnu/libaio.so
+
 
 ```
 
@@ -75,7 +80,11 @@ getent hosts ora26ai.example.com
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ hostname -f
+ora26ai.example.com
+debian@oracle:~$ getent hosts ora26ai.example.com
+fe80::5054:ff:feb8:8b28 ora26ai.example.com
+
 
 ```
 
@@ -101,7 +110,9 @@ id oracle
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ id oracle
+uid=54321(oracle) gid=54321(oinstall) groups=54321(oinstall),54322(dba)
+
 
 ```
 
@@ -131,7 +142,20 @@ sudo sysctl -p
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo sysctl -p
+fs.file-max = 6815744
+fs.aio-max-nr = 1048576
+kernel.sem = 250 32000 100 128
+kernel.shmmni = 4096
+kernel.shmall = 1073741824
+kernel.shmmax = 4398046511104
+kernel.panic_on_oops = 1
+net.core.rmem_default = 262144
+net.core.rmem_max = 4194304
+net.core.wmem_default = 262144
+net.core.wmem_max = 1048576
+net.ipv4.ip_local_port_range = 9000 65500
+
 
 ```
 
@@ -162,7 +186,11 @@ sudo su - oracle -c 'ulimit -n -u -s'
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo su - oracle -c 'ulimit -n -u -s'
+open files                          (-n) 1024
+max user processes                  (-u) 16384
+stack size                  (kbytes, -s) 10240
+
 
 ```
 
@@ -209,6 +237,7 @@ Tras esto, es necesario ejecutar el sed a continuación ya que Debian mete por d
 
 ```
 sudo sed -i '/# If not running interactively/,/esac/d' /home/oracle/.bashrc
+
 ```
 
 Verificamos las variables de entorno cargadas:
@@ -219,7 +248,24 @@ sudo su - oracle -c 'env | grep -E "ORACLE|CV_ASSUME"'
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo su - oracle -c 'env | grep -E "ORACLE|CV_ASSUME"'
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/oracle/product/26.0.0/dbhome_1
+ORACLE_HOSTNAME=ora26ai.example.com
+ORACLE_UNQNAME=ORCL
+CV_ASSUME_DISTID=OL8
+ORACLE_SID=ORCL
+
+
+```
+
+>**Importante**: Hemos declarado todas las variables de entorno y el path en el `.bashrc` del usuario oracle ya que queremos que estas esten solo disponibles para el. Esto conlleba que para los demas usuarios del sistema, los binarios de oracle tampoco estan en el path, lo que no nos importa ya que nadie se conectara a la base desde el propio servidor. En caso de que si quisiesemos que usuarios puedan acceder desde el servidor, podriamos agregar tambien el path globalmente (aunque no consideramos esto buena practica en el servidor):
+
+```
+sudo cat << 'EOF' | sudo tee /etc/profile.d/oracle.sh
+export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch:$PATH
+alias sqlp='rlwrap sqlplus / as sysdba'
+EOF
 
 ```
 
@@ -261,7 +307,32 @@ sudo su - oracle -c 'cd /u01/app/oracle/product/26.0.0/dbhome_1 && ./runInstalle
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo su - oracle -c 'cd /u01/app/oracle/product/26.0.0/dbhome_1 && ./runInstaller -silent -ignorePrereqFailure ...'
+Launching Oracle AI Database Setup Wizard...
+
+[WARNING] [INS-13001] Oracle Database is not supported on this operating system. Installer will not perform prerequisite checks on the system.
+   CAUSE: This operating system may not have been in the certified list at the time of the release of this software.
+   ACTION: Refer to My Oracle Support portal for the latest certification information for this operating system. Proceed with the installation if the operating system has been certified after the release of this software.
+The response file for this session can be found at:
+ /u01/app/oracle/product/26.0.0/dbhome_1/install/response/db_2026-10-06_07-47-55AM.rsp
+
+You can find the log of this install session at:
+ /tmp/InstallActions2026-10-06_07-47-55AM/installActions2026-10-06_07-47-55AM.log
+
+As a root user, run the following script(s):
+	1. /u01/app/oraInventory/orainstRoot.sh
+	2. /u01/app/oracle/product/26.0.0/dbhome_1/root.sh
+
+Run /u01/app/oraInventory/orainstRoot.sh on the following nodes:
+[ora26ai]
+Run /u01/app/oracle/product/26.0.0/dbhome_1/root.sh on the following nodes:
+[ora26ai]
+
+
+Successfully Setup Software.
+Moved the install session logs to:
+ /u01/app/oraInventory/logs/InstallActions2026-10-06_07-47-55AM
+
 
 ```
 
@@ -274,7 +345,16 @@ sudo /u01/app/oracle/product/26.0.0/dbhome_1/root.sh
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo /u01/app/oraInventory/orainstRoot.sh
+Changing permissions of /u01/app/oraInventory.
+Adding read,write permissions for group.
+Removing read,write,execute permissions for world.
+
+Changing groupname of /u01/app/oraInventory to oinstall.
+The execution of the script is complete.
+debian@oracle:~$ sudo /u01/app/oracle/product/26.0.0/dbhome_1/root.sh
+Check /u01/app/oracle/product/26.0.0/dbhome_1/install/root_ora26ai.example.com_2026-10-06_07-49-14-820754055.log for the output of root script
+
 
 ```
 
@@ -287,7 +367,27 @@ sudo cat /u01/app/oraInventory/ContentsXML/inventory.xml
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo su - oracle -c 'sqlplus -V'
+
+SQL*Plus: Release 23.26.1.0.0 - Production
+Version 23.26.1.0.0
+debian@oracle:~$ sudo cat /u01/app/oraInventory/ContentsXML/inventory.xml
+<?xml version="1.0" standalone="yes" ?>
+<!-- Copyright (c) 1999, 2026, Oracle and/or its affiliates.
+All rights reserved. -->
+<!-- Do not modify the contents of this file by hand. -->
+<INVENTORY>
+<VERSION_INFO>
+   <SAVED_WITH>12.2.0.9.0</SAVED_WITH>
+   <MINIMUM_VER>2.1.0.6.0</MINIMUM_VER>
+</VERSION_INFO>
+<HOME_LIST>
+<HOME NAME="OraDB23Home1" LOC="/u01/app/oracle/product/26.0.0/dbhome_1" TYPE="O" IDX="1"/>
+</HOME_LIST>
+<COMPOSITEHOME_LIST>
+</COMPOSITEHOME_LIST>
+</INVENTORY>
+
 
 ```
 
@@ -302,7 +402,45 @@ sudo su - oracle -c '$ORACLE_HOME/bin/lsnrctl status'
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo su - oracle -c '$ORACLE_HOME/bin/netca -silent -responsefile $ORACLE_HOME/assistants/netca/netca.rsp'
+
+Parsing command line arguments:
+    Parameter "silent" = true
+    Parameter "responsefile" = /u01/app/oracle/product/26.0.0/dbhome_1/assistants/netca/netca.rsp
+Done parsing command line arguments.
+Oracle Net Services Configuration:
+Profile configuration complete.
+Oracle Net Listener Startup:
+    Running Listener Control:
+      /u01/app/oracle/product/26.0.0/dbhome_1/bin/lsnrctl start LISTENER
+    Listener Control complete.
+    Listener started successfully.
+Listener configuration complete.
+Oracle Net Services configuration successful. The exit code is 0
+debian@oracle:~$ sudo su - oracle -c '$ORACLE_HOME/bin/lsnrctl status'
+
+LSNRCTL for Linux: Version 23.26.1.0.0 - Production on 06-OCT-2026 07:49:31
+
+Copyright (c) 1991, 2026, Oracle.  All rights reserved.
+
+Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=ora26ai.example.com)(PORT=1521)))
+STATUS of the LISTENER
+------------------------
+Alias                     LISTENER
+Version                   TNSLSNR for Linux: Version 23.26.1.0.0 - Production
+Start Date                06-OCT-2026 07:49:31
+Uptime                    0 days 0 hr. 0 min. 0 sec
+Trace Level               off
+Security                  ON: Local OS Authentication
+SNMP                      OFF
+Listener Parameter File   /u01/app/oracle/product/26.0.0/dbhome_1/network/admin/listener.ora
+Listener Log File         /u01/app/oracle/diag/tnslsnr/ora26ai/listener/alert/log.xml
+Listening Endpoints Summary...
+  (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=ora26ai.example.com)(PORT=1521)))
+  (DESCRIPTION=(ADDRESS=(PROTOCOL=ipc)(KEY=EXTPROC1521)))
+The listener supports no services
+The command completed successfully
+
 
 ```
 
@@ -352,7 +490,36 @@ sudo su - oracle -c '$ORACLE_HOME/bin/dbca -silent -createDatabase \
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo su - oracle -c '$ORACLE_HOME/bin/dbca -silent -createDatabase ...'
+[WARNING] [DBT-06801] Specified Fast Recovery Area size (10,240 MB) is less than the recommended value.
+   CAUSE: Fast Recovery Area size should at least be three times the database size (4,141 MB).
+   ACTION: Specify Fast Recovery Area Size to be at least three times the database size.
+Prepare for db operation
+8% complete
+Copying database files
+31% complete
+Creating and starting Oracle instance
+32% complete
+36% complete
+39% complete
+42% complete
+46% complete
+Completing Database Creation
+51% complete
+53% complete
+54% complete
+Creating Pluggable Databases
+58% complete
+77% complete
+Executing Post Configuration Actions
+100% complete
+Database creation complete. For details check the logfiles at:
+ /u01/app/oracle/cfgtoollogs/dbca/ORCL.
+Database Information:
+Global Database Name:ORCL
+System Identifier(SID):ORCL
+Look at the log file "/u01/app/oracle/cfgtoollogs/dbca/ORCL/ORCL.log" for further details.
+
 
 ```
 
@@ -360,10 +527,19 @@ sudo su - oracle -c '$ORACLE_HOME/bin/dbca -silent -createDatabase \
 
 ### Configuración de tnsnames.ora
 
-Creamos el archivo `$ORACLE_HOME/network/admin/tnsnames.ora` definiendo los alias de red locales para facilitar la resolución de nombres de la CDB (`ORCL`) y de la PDB (`PDB1`).
+`dbca` genera por su cuenta un `tnsnames.ora` con entradas propias, entre ellas `LISTENER_ORCL`, el alias que la instancia usa por defecto para registrarse en el Listener. Por este motivo **no se debe sobrescribir el fichero**: se hace una copia de seguridad y se **añaden** los alias de conexión al final con `>>`.
+
+```
+sudo su - oracle -c 'cp $ORACLE_HOME/network/admin/tnsnames.ora $ORACLE_HOME/network/admin/tnsnames.ora.bak'
+sudo su - oracle -c 'cat $ORACLE_HOME/network/admin/tnsnames.ora'
+
+```
+
+Revisamos el contenido y, si los alias `ORCL` y `PDB1` no aparecen ya, los añadimos para facilitar la resolución de nombres de la CDB (`ORCL`) y de la PDB (`PDB1`):
 
 ```
 sudo su - oracle -c 'cat >> $ORACLE_HOME/network/admin/tnsnames.ora <<EOF
+
 ORCL =
   (DESCRIPTION =
     (ADDRESS = (PROTOCOL = TCP)(HOST = ora26ai.example.com)(PORT = 1521))
@@ -385,7 +561,7 @@ EOF'
 
 ```
 
-Validamos la resolución de los alias TNS creados:
+Validamos la resolución de los alias TNS:
 
 ```
 sudo su - oracle -c 'tnsping ORCL'
@@ -394,41 +570,187 @@ sudo su - oracle -c 'tnsping PDB1'
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo su - oracle -c 'tnsping ORCL'
+TNS Ping Utility for Linux: Version 23.26.1.0.0 - Production on 06-OCT-2026 07:58:10
+
+Copyright (c) 1997, 2026, Oracle.  All rights reserved.
+
+Used parameter files:
+/u01/app/oracle/product/26.0.0/dbhome_1/network/admin/sqlnet.ora
+
+
+Used TNSNAMES adapter to resolve the alias
+Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = ora26ai.example.com)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = ORCL)))
+OK (0 msec)
+debian@oracle:~$ sudo su - oracle -c 'tnsping PDB1'
+TNS Ping Utility for Linux: Version 23.26.1.0.0 - Production on 06-OCT-2026 07:58:10
+
+Copyright (c) 1997, 2026, Oracle.  All rights reserved.
+
+Used parameter files:
+/u01/app/oracle/product/26.0.0/dbhome_1/network/admin/sqlnet.ora
+
+
+Used TNSNAMES adapter to resolve the alias
+Attempting to contact (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = ora26ai.example.com)(PORT = 1521)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = PDB1)))
+OK (0 msec)
+
 
 ```
 
-### Verificación y ajuste de parámetros en el SPFILE
+### Configuración de parámetros de arranque en el SPFILE
 
-Accedemos a la instancia mediante `sqlplus` para auditar los parámetros de arranque guardados en el `SPFILE`, registrar los servicios y guardar el estado de apertura automática de la PDB.
+El **SPFILE** es el fichero binario de parámetros que Oracle lee al arrancar la instancia. Los cambios realizados con `SCOPE=BOTH` se aplican en caliente y se guardan en él, de modo que persisten en los siguientes arranques.
+
+Durante la creación de la base de datos, `dbca` ya escribe en el SPFILE los parámetros principales: `db_name` y `db_unique_name` (a partir de `-gdbname`), `enable_pluggable_database` , `sga_target` y `pga_aggregate_target` (a partir de `-totalMemory`) o las rutas del área de recuperación. El nombre de la instancia se deduce de `ORACLE_SID`, y el nombre del servicio (`service_names`) toma por defecto el valor de `db_unique_name`. Por ello, en este paso solo comprobaremos que estos parametros se asignasen correctamene.
+
 
 ```
-sudo su - oracle -c 'sqlplus / as sysdba'
+sudo su - oracle -c 'sqlplus / as sysdba' <<'EOF'
 
-
--- Comprobar que la instancia ha arrancado utilizando un archivo SPFILE
+-- Comprobar que la instancia ha arrancado utilizando un SPFILE
 SHOW PARAMETER spfile;
 
--- Consultar parámetros de nombre de BD, nombre único de instancia y servicios
+-- Nombre de la base de datos, de la instancia y del servicio
 SHOW PARAMETER db_name;
 SHOW PARAMETER db_unique_name;
+SHOW PARAMETER instance_name;
 SHOW PARAMETER service_names;
-
--- Registrar los servicios explícitamente en el SPFILE para el Listener
-ALTER SYSTEM SET service_names='ORCL','PDB1' SCOPE=BOTH;
-
--- Guardar el estado de la PDB1 para que se abra automáticamente al iniciar la CDB
-ALTER PLUGGABLE DATABASE PDB1 SAVE STATE;
-
+EXIT;
+EOF
 
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo su - oracle -c 'sqlplus / as sysdba'
+
+SQL*Plus: Release 23.26.1.0.0 - Production on Tue Oct 6 07:58:18 2026
+Version 23.26.1.0.0
+
+Copyright (c) 1982, 2025, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle AI Database 26ai Enterprise Edition Release 23.26.1.0.0 - Production
+Version 23.26.1.0.0
+
+SQL> SHOW PARAMETER spfile;
+NAME								     TYPE	 VALUE
+------------------------------------ ----------- ------------------------------
+spfile								     string	 /u01/app/oracle/product/26.0.0
+							/dbhome_1/dbs/spfileORCL.ora
+SQL> SHOW PARAMETER db_name;
+NAME								     TYPE	 VALUE
+------------------------------------ ----------- ------------------------------
+db_name 							     string	 ORCL
+SQL> SHOW PARAMETER db_unique_name;
+NAME								     TYPE	 VALUE
+------------------------------------ ----------- ------------------------------
+db_unique_name						     string	 ORCL
+SQL> SHOW PARAMETER service_names;
+NAME								     TYPE	 VALUE
+------------------------------------ ----------- ------------------------------
+service_names						     string	 ORCL
+
+
+```
+
+Si queremos, tambien podemos hacer otros cambios a la configuracion del sistema, como por ejemplo asignar la direccion de listener directamente mediante el spfile, ya que por defecto este se asigna con una direccion en `tnsnames.ora`, asi que si queremos lo podemos poner nosotros impicitamente:
+    
+```
+ALTER SYSTEM SET local_listener='(ADDRESS=(PROTOCOL=TCP)(HOST=ora26ai.example.com)(PORT=1521))' SCOPE=BOTH;
+ALTER SYSTEM REGISTER;
+
+```
+
+Si quisiesemos podemos volcar el contenido del `SPFILE` en una copia en texto plano que si podemos leer directamente:
+    
+```
+CREATE PFILE='/u01/app/oracle/init_ORCL_backup.ora' FROM SPFILE;
+
+```
+
+```
+oracle@ora26ai:~$ cat /u01/app/oracle/init_ORCL_backup.ora
+ORCL.__data_transfer_cache_size=0
+ORCL.__datamemory_area_size=0
+ORCL.__db_cache_size=1728053248
+ORCL.__inmemory_ext_roarea=0
+ORCL.__inmemory_ext_rwarea=0
+ORCL.__java_pool_size=0
+ORCL.__large_pool_size=16777216
+ORCL.__oracle_base='/u01/app/oracle'#ORACLE_BASE set from environment
+ORCL.__pga_aggregate_target=805306368
+ORCL.__sga_target=2415919104
+ORCL.__shared_io_pool_size=117440512
+ORCL.__shared_pool_size=520093696
+ORCL.__streams_pool_size=0
+ORCL.__unified_pga_pool_size=0
+ORCL._instance_recovery_bloom_filter_size=1048576
+*.compatible='23.6.0'
+*.control_files='/u01/oradata/ORCL/control01.ctl','/u01/fast_recovery_area/ORCL/control02.ctl'
+*.db_block_size=8192
+*.db_name='ORCL'
+*.db_recovery_file_dest='/u01/fast_recovery_area'
+*.db_recovery_file_dest_size=10240m
+*.diagnostic_dest='/u01/app/oracle'
+*.dispatchers='(PROTOCOL=TCP) (SERVICE=ORCLXDB)'
+*.enable_pluggable_database=true
+*.local_listener='(ADDRESS=(PROTOCOL=TCP)(HOST=ora26ai.example.com)(PORT=1521))'
+*.nls_language='AMERICAN'
+*.nls_territory='AMERICA'
+*.open_cursors=300
+*.pga_aggregate_target=768m
+*.processes=300
+*.remote_login_passwordfile='EXCLUSIVE'
+*.sga_target=2304m
+*.undo_tablespace='UNDOTBS1'
+
+```
+
+Ahora comprobamos que el Listener tiene registrados los servicios `ORCL`, `PDB1` y `ORCLXDB`, todos con la instancia `ORCL` en estado `READY`:
+
+```
+sudo su - oracle -c 'lsnrctl services'
+
+```
+
+```
+debian@ora26ai:~$ sudo su - oracle -c 'lsnrctl services'
+
+LSNRCTL for Linux: Version 23.26.1.0.0 - Production on 06-OCT-2026 14:03:14
+
+Copyright (c) 1991, 2026, Oracle.  All rights reserved.
+
+Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=ora26ai.example.com)(PORT=1521)))
+Services Summary...
+Service "5d28596bf4642fd0e063177aa8c022a5" has 1 instance(s).
+  Instance "ORCL", status READY, has 1 handler(s) for this service...
+    Handler(s):
+      "DEDICATED" established:2 refused:0 state:ready
+         LOCAL SERVER
+Service "ORCL" has 1 instance(s).
+  Instance "ORCL", status READY, has 1 handler(s) for this service...
+    Handler(s):
+      "DEDICATED" established:2 refused:0 state:ready
+         LOCAL SERVER
+Service "ORCLXDB" has 1 instance(s).
+  Instance "ORCL", status READY, has 1 handler(s) for this service...
+    Handler(s):
+      "D000" established:0 refused:0 current:0 max:1022 state:ready
+         DISPATCHER <machine: ora26ai.example.com, pid: 2032>
+         (ADDRESS=(PROTOCOL=tcp)(HOST=ora26ai.example.com)(PORT=36161))
+Service "pdb1" has 1 instance(s).
+  Instance "ORCL", status READY, has 1 handler(s) for this service...
+    Handler(s):
+      "DEDICATED" established:2 refused:0 state:ready
+         LOCAL SERVER
+The command completed successfully
 
 ```
 
 ## 5. Automatización del Arranque del Servicio (`systemd`)
+
 
 Para asegurar el arranque y parada automática de la base de datos y del Listener con el sistema operativo:
 
@@ -441,7 +763,9 @@ grep ^ORCL /etc/oratab
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ grep ^ORCL /etc/oratab
+ORCL:/u01/app/oracle/product/26.0.0/dbhome_1:Y
+
 
 ```
 
@@ -486,7 +810,43 @@ sudo systemctl status oracle-db.service
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@oracle:~$ sudo systemctl status oracle-db.service
+● oracle-db.service - Oracle Database 26ai Service
+     Loaded: loaded (/etc/systemd/system/oracle-db.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-10-06 07:59:51 UTC; 27ms ago
+ Invocation: 2b2195c780e54326abed9c6f23b41d3d
+    Process: 12695 ExecStart=/u01/app/oracle/product/26.0.0/dbhome_1/bin/dbstart /u01/app/oracle/product/26.0.0/>
+      Tasks: 100 (limit: 9486)
+     Memory: 2.9G (peak: 3G)
+        CPU: 14.065s
+     CGroup: /system.slice/oracle-db.service
+             ├─12807 ora_pmon_ORCL
+             ├─12811 ora_clmn_ORCL
+             ├─12815 ora_psp0_ORCL
+             ├─12819 ora_vktm_ORCL
+             ├─12825 ora_gen0_ORCL
+             ├─12831 ora_mman_ORCL
+             ├─12837 ora_gen2_ORCL
+             ├─12839 ora_diag_ORCL
+             ├─12843 ora_ofsd_ORCL
+             ├─12845 ora_gwpd_ORCL
+             ├─12847 ora_dbrm_ORCL
+             ├─12849 ora_vkrm_ORCL
+             ├─12851 ora_svcb_ORCL
+             ├─12853 ora_pman_ORCL
+             ├─12855 ora_dia0_ORCL
+             ├─12858 ora_lmhb_ORCL
+             ├─12862 ora_dbw0_ORCL
+             ├─12865 ora_lgwr_ORCL
+             ├─12867 ora_ckpt_ORCL
+             ├─12869 ora_smon_ORCL
+             ├─12871 ora_smco_ORCL
+             ├─12873 ora_reco_ORCL
+             ├─12876 ora_lreg_ORCL
+             ├─12882 ora_pxmn_ORCL
+             ├─12888 ora_mmon_ORCL
+             ├─12891 ora_mmnl_ORCL
+
 
 ```
 
@@ -508,6 +868,49 @@ EOF
 ```
 
 ```
-[INSERTA AQUÍ LA SALIDA DEL COMANDO EN TU TERMINAL]
+debian@ora26ai:~$ sudo su - oracle -c 'sqlplus system/************@ORCL' <<'EOF'
+SELECT name, open_mode, cdb FROM v$database;
+EXIT;
+EOF
+
+SQL*Plus: Release 23.26.1.0.0 - Production on Tue Oct 6 14:04:40 2026
+Version 23.26.1.0.0
+
+Copyright (c) 1982, 2025, Oracle.  All rights reserved.
+
+Last Successful login time: Tue Oct 06 2026 10:44:22 +00:00
+
+Connected to:
+Oracle AI Database 26ai Enterprise Edition Release 23.26.1.0.0 - Production
+Version 23.26.1.0.0
+
+SQL>
+NAME      OPEN_MODE            CDB
+--------- -------------------- ---
+ORCL      READ WRITE           YES
+
+
+debian@ora26ai:~$ sudo su - oracle -c 'sqlplus system/oracle@PDB1' <<'EOF'
+SELECT name, open_mode FROM v$pdbs;
+EXIT;
+EOF
+
+SQL*Plus: Release 23.26.1.0.0 - Production on Tue Oct 6 14:06:18 2026
+Version 23.26.1.0.0
+
+Copyright (c) 1982, 2025, Oracle.  All rights reserved.
+
+Last Successful login time: Tue Oct 06 2026 14:04:40 +00:00
+
+Connected to:
+Oracle AI Database 26ai Enterprise Edition Release 23.26.1.0.0 - Production
+Version 23.26.1.0.0
+
+SQL>
+NAME    OPEN_MODE
+------- ----------
+PDB1    READ WRITE
+
+
 
 ```
