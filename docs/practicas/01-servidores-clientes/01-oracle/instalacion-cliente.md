@@ -1,12 +1,12 @@
 # Guía de Instalación y Configuración de Oracle Instant Client en Linux
 
-Esta guía describe el procedimiento para la instalación y configuración de Oracle Instant Client en entornos Debian13. Tambien abarcaremos la resolución de nombres a través del archivo `tnsnames.ora`.
+Esta guía describe el procedimiento para la instalación y configuración de Oracle Instant Client en entornos Debian13. También abarcaremos la resolución de nombres a través del archivo `tnsnames.ora`.
 
 --- 
 
 ### Instalación de Dependencias del Sistema
 
-La principal libreria que se requiere es la librería `libaio` que la lectura y escritura de I/O asíncrona requerida por los binarios de Oracle.
+La principal librería que se requiere es la librería `libaio` que la lectura y escritura de I/O asíncrona requerida por los binarios de Oracle.
 
 En Debian 13 el paquete de la biblioteca `libaio1` se empaqueta como `libaio1t64` (`libaio.so.1t64`), pero el instalador de Oracle busca explícitamente el nombre tradicional `libaio.so.1`. Es por esto que tras descargarla, tambien creamos el enlace simbólico y actualizamos la caché de bibliotecas.
 
@@ -26,7 +26,7 @@ Para garantizar un entorno estructurado y estandarizado, los binarios de Oracle 
 
 ### Estructura de Directorios y Extracción de Binarios
 
-Creación del directorio base y descompresión del paquete de software. Paraello debemos de optener primero los paquetes Oracle Instant Client y SQLPLUS, los cuales podemos optener en [la web de Oracle](https://www.oracle.com/es/database/technologies/instant-client/linux-x86-64-downloads.html):
+Creación del directorio base y descompresión del paquete de software. Para ello debemos de obtener primero los paquetes Oracle Instant Client y SQLPLUS, los cuales podemos conseguir en [la web de Oracle](https://www.oracle.com/es/database/technologies/instant-client/linux-x86-64-downloads.html):
 
 ```
 sudo mkdir -p /opt/oracle

@@ -233,7 +233,7 @@ sudo chown oracle:oinstall /home/oracle/.bashrc
 
 ```
 
-Tras esto, es necesario ejecutar el sed a continuación ya que Debian mete por defecto en todos los .bashrc un bloque que bloquea la ejecución del contenido de estos en shell no interactivas, asi que es sed elimina dicho bloque para que no nos estorbe en comandos que expanden sub shells que ejecutaremos durante la instalación.
+Tras esto, es necesario ejecutar el sed a continuación ya que Debian mete por defecto en todos los .bashrc un bloque que bloquea la ejecución del contenido de estos en shell no interactivas, así que es sed elimina dicho bloque para que no nos estorbe en comandos que expanden sub shells que ejecutaremos durante la instalación.
 
 ```
 sudo sed -i '/# If not running interactively/,/esac/d' /home/oracle/.bashrc
@@ -259,7 +259,7 @@ ORACLE_SID=ORCL
 
 ```
 
->**Importante**: Hemos declarado todas las variables de entorno y el path en el `.bashrc` del usuario oracle ya que queremos que estas esten solo disponibles para el. Esto conlleba que para los demas usuarios del sistema, los binarios de oracle tampoco estan en el path, lo que no nos importa ya que nadie se conectara a la base desde el propio servidor. En caso de que si quisiesemos que usuarios puedan acceder desde el servidor, podriamos agregar tambien el path globalmente (aunque no consideramos esto buena practica en el servidor):
+>**Importante**: Hemos declarado todas las variables de entorno y el path en el `.bashrc` del usuario oracle ya que queremos que estas estén solo disponibles para el. Esto conlleva que para los demás usuarios del sistema, los binarios de oracle tampoco están en el path, lo que no nos importa ya que nadie se conectara a la base desde el propio servidor. En caso de que si quisiésemos que usuarios puedan acceder desde el servidor, podríamos agregar también el path globalmente (aunque no consideramos esto buena practica en el servidor):
 
 ```
 sudo cat << 'EOF' | sudo tee /etc/profile.d/oracle.sh
@@ -273,14 +273,14 @@ EOF
 
 ### Descompresión de la imagen de oracle e instalación silenciosa
 
-Descomprimimos el paquete de instalación directamente en la ruta del `$ORACLE_HOME` usando el usuario `oracle`.(Este paquete tendriamos que haberlo descargado de antemano, podemos obtenerlo en [la web oficial de oracle](https://www.oracle.com/es/database/technologies/oracle-database-software-downloads.html))
+Descomprimimos el paquete de instalación directamente en la ruta del `$ORACLE_HOME` usando el usuario `oracle`.(Este paquete tendríamos que haberlo descargado de antemano, podemos obtenerlo en [la web oficial de oracle](https://www.oracle.com/es/database/technologies/oracle-database-software-downloads.html))
 
 ```
 sudo su - oracle -c 'unzip -q /TU_DIRECTORIO/LINUX.X64_2326100_db_home.zip -d /u01/app/oracle/product/26.0.0/dbhome_1'
 
 ```
 
-Tras esto es comveniente eliminar el fichero original de la imagen.
+Tras esto es conveniente eliminar el fichero original de la imagen.
 
 ```
 rm -f /TU_DIRECTORIO/LINUX.X64_2326100_db_home.zip
@@ -602,7 +602,7 @@ OK (0 msec)
 
 El **SPFILE** es el fichero binario de parámetros que Oracle lee al arrancar la instancia. Los cambios realizados con `SCOPE=BOTH` se aplican en caliente y se guardan en él, de modo que persisten en los siguientes arranques.
 
-Durante la creación de la base de datos, `dbca` ya escribe en el SPFILE los parámetros principales: `db_name` y `db_unique_name` (a partir de `-gdbname`), `enable_pluggable_database` , `sga_target` y `pga_aggregate_target` (a partir de `-totalMemory`) o las rutas del área de recuperación. El nombre de la instancia se deduce de `ORACLE_SID`, y el nombre del servicio (`service_names`) toma por defecto el valor de `db_unique_name`. Por ello, en este paso solo comprobaremos que estos parametros se asignasen correctamene.
+Durante la creación de la base de datos, `dbca` ya escribe en el SPFILE los parámetros principales: `db_name` y `db_unique_name` (a partir de `-gdbname`), `enable_pluggable_database` , `sga_target` y `pga_aggregate_target` (a partir de `-totalMemory`) o las rutas del área de recuperación. El nombre de la instancia se deduce de `ORACLE_SID`, y el nombre del servicio (`service_names`) toma por defecto el valor de `db_unique_name`. Por ello, en este paso solo comprobaremos que estos parámetros se asignasen correctamente.
 
 
 ```
@@ -655,7 +655,7 @@ service_names						     string	 ORCL
 
 ```
 
-Si queremos, tambien podemos hacer otros cambios a la configuracion del sistema, como por ejemplo asignar la direccion de listener directamente mediante el spfile, ya que por defecto este se asigna con una direccion en `tnsnames.ora`, asi que si queremos lo podemos poner nosotros impicitamente:
+Si queremos, también podemos hacer otros cambios a la configuración del sistema, como por ejemplo asignar la dirección de listener directamente mediante el spfile, ya que por defecto este se asigna con una dirección en `tnsnames.ora`, asi que si queremos lo podemos poner nosotros implícitamente:
     
 ```
 ALTER SYSTEM SET local_listener='(ADDRESS=(PROTOCOL=TCP)(HOST=ora26ai.example.com)(PORT=1521))' SCOPE=BOTH;
@@ -663,7 +663,7 @@ ALTER SYSTEM REGISTER;
 
 ```
 
-Si quisiesemos podemos volcar el contenido del `SPFILE` en una copia en texto plano que si podemos leer directamente:
+Si quisiésemos podemos volcar el contenido del `SPFILE` en una copia en texto plano que si podemos leer directamente:
     
 ```
 CREATE PFILE='/u01/app/oracle/init_ORCL_backup.ora' FROM SPFILE;
@@ -910,7 +910,5 @@ SQL>
 NAME    OPEN_MODE
 ------- ----------
 PDB1    READ WRITE
-
-
 
 ```
