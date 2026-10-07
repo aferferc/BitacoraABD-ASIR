@@ -312,13 +312,17 @@ def render_practicas(docs_root: Path, page_uri: str = HOME) -> str:
 
 
 def render_documentos(docs_root: Path, page_uri: str = HOME) -> str:
-    """Lista de todos los documentos, cada uno con su título interno y su ubicación."""
-    items = []
+    """Galería de todos los documentos: un widget compacto por documento (título interno + ubicación)."""
+    cards = []
     for label, path, trail in documents(_practicas(docs_root)):
         ruta = " › ".join(trail)
-        extra = f' <span class="doc-ruta">{ruta}</span>' if ruta else ""
-        items.append(f"- [{label}]({_rel(path, page_uri)}){extra}")
-    return "\n".join(items) + "\n" if items else "Todavía no hay documentos publicados.\n"
+        lines = [f"-   [{label}]({_rel(path, page_uri)})"]
+        if ruta:
+            lines += ["", f'    <span class="doc-ruta">{ruta}</span>']
+        cards.append("\n".join(lines))
+    if not cards:
+        return "Todavía no hay documentos publicados.\n"
+    return '<div class="grid cards doc-grid" markdown>\n\n' + "\n\n".join(cards) + "\n\n</div>\n"
 
 
 def _render_tree(children: list, page_uri: str, depth: int = 0) -> list[str]:

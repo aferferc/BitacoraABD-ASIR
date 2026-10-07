@@ -20,7 +20,7 @@ Esta guía cubre el procedimiento completo de instalación de MongoDB Community 
 
 Importamos la clave GPG del repositorio oficial e instalamos la suite de MongoDB (`mongodb-org`):
 
-```bash
+```
 sudo apt update
 sudo apt install -y gnupg curl
 
@@ -38,12 +38,12 @@ sudo apt install -y mongodb-org
 
 Iniciamos y habilitamos el servicio `mongod`:
 
-```bash
+```
 sudo systemctl enable --now mongod
 sudo systemctl status mongod --no-pager
 ```
 
-```text
+```
 debian@mongodb:~$ sudo systemctl status mongod --no-pager
 ● mongod.service - MongoDB Database Server
      Loaded: loaded (/usr/lib/systemd/system/mongod.service; enabled; preset: enabled)
@@ -59,11 +59,11 @@ debian@mongodb:~$ sudo systemctl status mongod --no-pager
 
 Comprobamos la versión del servidor instalada:
 
-```bash
+```
 mongod --version
 ```
 
-```text
+```
 debian@mongodb:~$ mongod --version
 db version v8.0.32
 Build Info: {
@@ -88,7 +88,7 @@ Por defecto, MongoDB escucha únicamente en `127.0.0.1` y no requiere autenticac
 
 Conectamos localmente e introducimos los usuarios en sus respectivas bases de datos (`authSource`):
 
-```bash
+```
 mongosh --quiet << 'EOF'
 db.getSiblingDB("admin").createUser({
   user: "mongoadmin",
@@ -107,7 +107,7 @@ EOF
 
 Editamos `/etc/mongod.conf` para exigir autenticación (`authorization: enabled`) y vincular la IP del servidor(muy importante, a ip del servidor mongo, no la del cliente) a las interfaces de escucha:
 
-```bash
+```
 sudo tee -a /etc/mongod.conf << 'EOF'
 
 security:
@@ -120,12 +120,12 @@ sudo systemctl restart mongod
 
 Verificamos la configuración y la escucha en la red por el puerto 27017:
 
-```bash
+```
 grep -A3 -E '^(net|security):' /etc/mongod.conf
 sudo ss -tlnp | grep 27017
 ```
 
-```text
+```
 debian@mongodb:~$ grep -A3 -E '^(net|security):' /etc/mongod.conf
 net:
   port: 27017
@@ -141,11 +141,11 @@ LISTEN 0      4096       127.0.0.1:27017      0.0.0.0:*    users:(("mongod",pid=
 
 Comprobamos que ya no se permite operar sin autenticación desde el propio servidor:
 
-```bash
+```
 mongosh --quiet --eval 'db.getSiblingDB("bd-prueba").getCollectionNames()'
 ```
 
-```text
+```
 debian@mongodb:~$ mongosh --quiet --eval 'db.getSiblingDB("bd-prueba").getCollectionNames()'
 MongoServerError: Command listCollections requires authentication
 ```
@@ -156,7 +156,7 @@ En el equipo cliente se instala únicamente la shell oficial de MongoDB (`mongos
 
 ### 3.1. Instalación de `mongosh` en el Cliente Remoto
 
-```bash
+```
 sudo apt update
 sudo apt install -y gnupg curl
 
@@ -174,17 +174,17 @@ sudo apt install -y mongodb-mongosh
 
 Nos conectamos desde la máquina cliente hacia la base de datos remota utilizando el usuario autenticado:
 
-```bash
+```
 mongosh "mongodb://TU_IP_SERVIDOR:27017/bd-prueba?authSource=bd-prueba" -u usuario-prueba
 ```
 
 Una vez dentro de la shell, podemos verificar el estado de la conexión y ver que usamos el usuario correcto:
 
-```javascript
+```
 db.runCommand({ connectionStatus: 1 })
 ```
 
-```text
+```
 bd-prueba> db.runCommand({ connectionStatus: 1 })
 {
   authInfo: {
@@ -205,7 +205,7 @@ Insertamos documentos en una colección denominada `clientes`:
 
 * **Insertar un único documento (`insertOne`):**
 
-```javascript
+```
 db.clientes.insertOne({
   nombre: "Juan Pérez",
   email: "juan.perez@example.com",
@@ -215,7 +215,7 @@ db.clientes.insertOne({
 })
 ```
 
-```text
+```
 bd-prueba> db.clientes.insertOne({
 |   nombre: "Juan Pérez",
 |   email: "juan.perez@example.com",
@@ -231,14 +231,14 @@ bd-prueba> db.clientes.insertOne({
 
 * **Insertar múltiples documentos (`insertMany`):**
 
-```javascript
+```
 db.clientes.insertMany([
   { nombre: "Ana Gómez", email: "ana.gomez@example.com", edad: 25, activo: true },
   { nombre: "Carlos Ruiz", email: "carlos.ruiz@example.com", edad: 40, activo: false }
 ])
 ```
 
-```text
+```
 bd-prueba> db.clientes.insertMany([
 |   { nombre: "Ana Gómez", email: "ana.gomez@example.com", edad: 25, activo: true },
 |   { nombre: "Carlos Ruiz", email: "carlos.ruiz@example.com", edad: 40, activo: false }
@@ -257,11 +257,11 @@ bd-prueba> db.clientes.insertMany([
 Ahora realizaremos un par de consultas para familiarizarnos con el motor:
 
 * **Consultar todos los documentos de una colección:**
-```javascript
+```
 db.clientes.find()
 ```
 
-```text
+```
 bd-prueba> db.clientes.find()
 [
   {
@@ -291,12 +291,12 @@ bd-prueba> db.clientes.find()
 
 * **Consultar con filtros:**
 
-```javascript
+```
 // Obtener los clientes que estén activos
 db.clientes.find({ activo: true })
 ```
 
-```text
+```
 bd-prueba> db.clientes.find({ activo: true })
 [
   {
@@ -317,12 +317,12 @@ bd-prueba> db.clientes.find({ activo: true })
 ]
 ```
 
-```javascript
+```
 // Obtener los clientes con edad mayor a 28 años
 db.clientes.find({ edad: { $gt: 28 } })
 ```
 
-```text
+```
 bd-prueba> db.clientes.find({ edad: { $gt: 28 } })
 [
   {
@@ -345,12 +345,12 @@ bd-prueba> db.clientes.find({ edad: { $gt: 28 } })
 
 * **Proyección (seleccionar solo campos específicos):**
 
-```javascript
+```
 // Mostrar únicamente el nombre y el email
 db.clientes.find({}, { nombre: 1, email: 1, _id: 0 })
 ```
 
-```text
+```
 bd-prueba> db.clientes.find({}, { nombre: 1, email: 1, _id: 0 })
 [
   { nombre: 'Juan Pérez', email: 'juan.perez@example.com' },
@@ -358,3 +358,10 @@ bd-prueba> db.clientes.find({}, { nombre: 1, email: 1, _id: 0 })
   { nombre: 'Carlos Ruiz', email: 'carlos.ruiz@example.com' }
 ]
 ```
+
+
+
+
+
+
+
